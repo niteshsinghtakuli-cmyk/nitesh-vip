@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>🔥 Wingo AI Pro</title>
+
+<style>
+body {
+    background: radial-gradient(circle at top, #020617, #000);
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+}
+
+/* CONTAINER */
+.container {
+    max-width: 1000px;
+    margin: auto;
+}
+
+/* TITLE */
+h1 {
+    text-align: center;
+    padding: 20px;
+    text-shadow: 0 0 20px orange;
+}
+
+/* CARD */
+.card {
+    background: #0f172a;
+    margin: 15px;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.8);
+}
+
+/* CENTER */
+.center { text-align: center; }
+
+/* COLORS */
+.green { color:#22c55e; text-shadow:0 0 10px #22c55e; }
+.red { color:#ef4444; text-shadow:0 0 10px #ef4444; }
+.blue { color:#38bdf8; text-shadow:0 0 10px #38bdf8; }
+
+/* PREDICTION */
+.main-prediction {
+    font-size: 42px;
+    font-weight: bold;
+}
+
+/* TIMER */
+.timer {
+    font-size: 50px;
+    text-align: center;
+    color:#38bdf8;
+    text-shadow:0 0 20px #38bdf8;
+}
+
+/* TABLE */
+.table-box {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+table {
+    width:100%;
+    border-collapse: collapse;
+}
+
+th {
+    background:#1e293b;
+    padding:10px;
+}
+
+td {
+    padding:8px;
+    text-align:center;
+}
+
+tr:nth-child(even){
+    background:#020617;
+}
+
+/* BUTTON */
+.btn {
+    padding:10px 15px;
+    border-radius:8px;
+    border:none;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.bet-btn {
+    background:#22c55e;
+    box-shadow:0 0 10px #22c55e;
+}
+
+.set-btn {
+    background:#38bdf8;
+}
+
+input {
+    padding:8px;
+    border-radius:6px;
+    border:none;
+}
+
+/* ACCURACY BAR */
+.bar {
+    background:#1e293b;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.bar-fill {
+    background:#22c55e;
+    padding:5px;
+    text-align:center;
+}
+
+/* GLOW */
+@keyframes glow {
+    0% {opacity:0.7;}
+    50% {opacity:1;}
+    100% {opacity:0.7;}
+}
+
+.signal {
+    animation: glow 1.5s infinite;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🔥 Wingo AI Pro</h1>
+
+<!-- MAIN -->
+<div class="card center">
+
+<h2 class="blue">Next: {{ next_period }}</h2>
+
+<div class="main-prediction {% if final == 'BIG' %}green{% else %}red{% endif %}">
+{{ final }}
+</div>
+
+<div class="timer" id="timer">30</div>
+
+<p class="blue">Confidence: {{ confidence }}%</p>
+
+<p>
+Action:
+<span class="{% if action == 'BET' %}green{% else %}red{% endif %}">
+{{ action }}
+</span>
+</p>
+
+<p>Last Result: {{ last_result }}</p>
+
+</div>
+
+<!-- STATS -->
+<div class="card center">
+
+<h3>📊 Performance</h3>
+
+<div class="bar">
+<div class="bar-fill" style="width: {{ accuracy }}%">
+{{ accuracy }}%
+</div>
+</div>
+
+<br>
+
+<p>
+🔥 Streak:
+<span class="{% if streak_type == 'WIN' %}green{% else %}red{% endif %}">
+{{ streak }} {{ streak_type }}
+</span>
+</p>
+
+<h2 class="signal 
+{% if signal == 'STRONG' %}green
+{% elif signal == 'NORMAL' %}blue
+{% else %}red
+{% endif %}">
+{{ signal }} ENTRY
+</h2>
+
+</div>
+
+<!-- CONTROL -->
+<div class="card center">
+
+<h3>💰 Control Panel</h3>
+
+<form method="post" action="/set_balance">
+<input type="number" name="balance" placeholder="Enter Balance" required>
+<button class="btn set-btn">Set</button>
+</form>
+
+<br>
+
+<form method="post" action="/bet">
+<button class="btn bet-btn">🔥 I BET</button>
+</form>
+
+<br>
+
+<p>Level: <span class="blue">{{ level }}</span></p>
+<p>Bet: <span class="green">₹{{ bet_amount }}</span></p>
+<p>Balance: ₹{{ balance }}</p>
+
+<p style="color:yellow;">⚠️ Max 3 Levels Only</p>
+
+</div>
+
+<!-- AI -->
+<div class="card">
+<h3 class="center">🤖 AI Predictions</h3>
+
+<div class="table-box">
+<table>
+<tr><th>AI</th><th>Prediction</th><th>Confidence</th></tr>
+
+{% for ai in ai_results %}
+<tr>
+<td>{{ ai.name }}</td>
+<td class="{% if ai.prediction=='BIG' %}green{% else %}red{% endif %}">
+{{ ai.prediction }}
+</td>
+<td>{{ ai.confidence }}%</td>
+</tr>
+{% endfor %}
+
+</table>
+</div>
+</div>
+
+<!-- HISTORY -->
+<div class="card">
+<h3 class="center">📊 History</h3>
+
+<div class="table-box">
+<table>
+<tr><th>Period</th><th>Prediction</th><th>Actual</th><th>Result</th></tr>
+
+{% for h in history %}
+<tr>
+<td>{{ h.period }}</td>
+<td>{{ h.prediction }}</td>
+<td>{{ h.actual }}</td>
+<td class="{% if h.result=='WIN' %}green{% elif h.result=='LOSS' %}red{% endif %}">
+{{ h.result }}
+</td>
+</tr>
+{% endfor %}
+
+</table>
+</div>
+</div>
+
+</div>
+
+<!-- TIMER -->
+<script>
+setInterval(() => {
+    let now = new Date();
+    let sec = now.getSeconds();
+
+    let remaining = 30 - (sec % 30);
+    document.getElementById("timer").innerText = remaining;
+
+    if (remaining === 1) {
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    }
+
+}, 1000);
+</script>
+
+</body>
+</html>
